@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+	<meta name="viewport" content="width=320, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Bitchin' Flip</title>
+	<link rel="stylesheet" type="text/css" href="style.css" />
+	<link rel="stylesheet" href="jquery-ui-1.12.1/jquery-ui.css" />
+	<script src="jquery-ui-1.12.1/external/jquery/jquery.js"></script>
+	<script src="jquery-ui-1.12.1/jquery-ui.js"></script>
+	<script>
+		$( function() {
+			$(".button").button();
+			$("#spinner").spinner();
+			$("#addplayer").click(function () {
+				$("<input class=\"ui-widget\" type=\"text\" /><br />").insertBefore($("#addplayer"));
+			});
+			$("#form").submit(function () {
+				var playerlist = "";
+				var playercount = 0;
+				$("input[type=\"text\"]").each(function () {
+					if (playerlist) playerlist += ".";
+					var playername = $(this).val();
+					playerlist += playername;
+					if (playername) ++playercount;
+				});
+				if (playercount < 2) return false;
+				$("#playerlist").val(playerlist);
+				return true;
+			});
+		} );
+	</script>
+</head>
+<body>
+	<h1>Bitchin' Flip</h1>
+	<form id="form" action="game.html">
+		<input class="ui-widget" type="text" /><br />
+		<input class="ui-widget" type="text" /><br />
+		<input type="button" class="button" id="addplayer" value="Add player" />
+		<input type="submit" class="button" value="Start game" /><br />
+		<br /><br />
+		<label for="spinner">Board Size&nbsp;&nbsp;</label>
+		<input id="spinner" name="size" value="5" />
+		<input id="playerlist" name="players" type="hidden" />
+	</form>
+</body>
+</html>
