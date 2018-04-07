@@ -10,21 +10,102 @@
 	<script src="jquery-ui-1.12.1/external/jquery/jquery.js"></script>
 	<script src="jquery-ui-1.12.1/jquery-ui.js"></script>
 	<script>
-		var players = [ ];
+		var players = [];
+		var currentPlayer = 0;
+		var playerMoves = 0;
+		var nextPlayerMoves = 1;
 		var boardSize;
+		var boardContents = [];
+		var onCloseDialog;
 
+		function chooseBoardTile() {
+			if (Math.random() < 0.5) {
+				return "green";
+			}
+			else {
+				if (Math.random() < 0.5)
+					return "yellow";
+				else
+					return "orange";
+			}
+		}
 		function startGame() {
-			var boardHeight = boardSize;
+			var boardHeight = boardSize - 1;
 			var table = "<table>";
 			for (var y = 0; y < boardHeight; ++y) {
 				table += "<tr>";
+				boardContents[y] = [ ];
 				for (var x = 0; x < boardSize; ++x) {
-					table += "<td><img src=\"cards/green.png\" /></td>";
+					table += "<td><img src=\"cards/back.png\" onclick=\"clickTile(this," + x + "," + y + ");\" /></td>";
+					boardContents[y][x] = chooseBoardTile();
 				}
 				table += "</tr>";
 			}
 			table += "</table>";
 			$("#board").append(table);
+			// Hide the lose cards
+			for (var i = 1; i < players.length; ++i) {
+				var x = Math.floor(Math.random() * boardSize);
+				var y = Math.floor(Math.random() * boardHeight);
+				boardContents[y][x] = "red";
+			}
+			currentPlayer = Math.floor(Math.random() * players.length);
+			advanceTurn();
+		}
+		function clickTile(elem, x, y) {
+			if (playerMoves <= 0 || $(elem).attr("src") != "cards/back.png") return;
+			$(elem).attr("src", "cards/" + boardContents[y][x] + ".png");
+			if (boardContents[y][x] == "yellow") ++playerMoves;
+			else if (boardContents[y][x] == "orange") ++nextPlayerMoves;
+			--playerMoves;
+			$("#playermoves").text(playerMoves);
+			if (boardContents[y][x] == "red") {
+				playerMoves = 0;
+				setTimeout(playerLose, 500);
+			}
+			else if (playerMoves == 0) {
+				setTimeout(advanceTurn, 500);
+			}
+		}
+
+		function advanceTurn() {
+			++currentPlayer;
+			if (currentPlayer >= players.length) currentPlayer = 0;
+			playerMoves = nextPlayerMoves;
+			nextPlayerMoves = 1;
+			var text = players[currentPlayer] + "'s turn";
+			$("#playerturn").text(text);
+			$("#playermoves").text(playerMoves);
+			showDialog(text);
+		}
+		function showDialog(text) {
+			$("#turndialog").show().text(text);
+			$("#turndialog-overlay").show();
+		}
+		function hideDialog() {
+			$("#turndialog").hide();
+			$("#turndialog-overlay").hide();
+			if (onCloseDialog) {
+				var callback = onCloseDialog;
+				onCloseDialog = null;
+				callback();
+			}
+		}
+		function playerLose() {
+			showDialog("You lose!");
+			players.splice(currentPlayer, 1);
+			--currentPlayer;
+			if (players.length == 1) {
+				onCloseDialog = function () {
+					setTimeout(function () {
+						showDialog(players[0] + " has won!");
+						onCloseDialog = function () { location.reload(); };
+					}, 100);
+				};
+			}
+			else {
+				onCloseDialog = advanceTurn;
+			}
 		}
 
 		$(function () {
@@ -44,6 +125,7 @@
 				}
 			}
 			if (boardSize > 1 && players.length >= 2) {
+				$("body").click(hideDialog);
 				startGame();
 			}
 			else {
@@ -53,6 +135,9 @@
 	</script>
 </head>
 <body>
+	<div id="topbar"><span id="playerturn"></span><span id="playermoves"></span></div>
 	<div id="board"></div>
+	<div id="turndialog" class="ui-dialog ui-front" style="z-index:101;">Poop</div>
+	<div id="turndialog-overlay" class="ui-widget-overlay ui-front" style="z-index:100;"></div>
 </body>
 </html>
