@@ -35,12 +35,16 @@ input[type="text"]
 
 table
 {
-	width: 320px;
+	width: 100%;
 	margin-left: auto; 
     margin-right: auto;
 }
+td
+{
+	margin: 0;
+	padding: 0;
+}
 td img
 {
-	margin: -15% 0;
 	width: 100%;
 }
