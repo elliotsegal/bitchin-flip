@@ -1,0 +1,58 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+	<meta name="viewport" content="width=320, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Bitchin' Flip</title>
+	<link rel="stylesheet" type="text/css" href="style.css" />
+	<link rel="stylesheet" href="jquery-ui-1.12.1/jquery-ui.css" />
+	<script src="jquery-ui-1.12.1/external/jquery/jquery.js"></script>
+	<script src="jquery-ui-1.12.1/jquery-ui.js"></script>
+	<script>
+		var players = [ ];
+		var boardSize;
+
+		function startGame() {
+			var boardHeight = boardSize;
+			var table = "<table>";
+			for (var y = 0; y < boardHeight; ++y) {
+				table += "<tr>";
+				for (var x = 0; x < boardSize; ++x) {
+					table += "<td><img src=\"cards/green.png\" /></td>";
+				}
+				table += "</tr>";
+			}
+			table += "</table>";
+			$("#board").append(table);
+		}
+
+		$(function () {
+			var urlVariables = decodeURIComponent(window.location.search.substring(1)).split('&');
+			for (var i = 0; i < urlVariables.length; i++) {
+				var parameter = urlVariables[i].split('=');
+				if (parameter[0] == "players") {
+					var playerList = parameter[1].split('.');
+					for (var j = 0; j < playerList.length; ++j) {
+						if (playerList[j]) {
+							players.push(playerList[j]);
+						}
+					}
+				}
+				else if (parameter[0] == "size") {
+					boardSize = parseInt(parameter[1]);
+				}
+			}
+			if (boardSize > 1 && players.length >= 2) {
+				startGame();
+			}
+			else {
+				window.location.replace('index.html');
+			}
+		});
+	</script>
+</head>
+<body>
+	<div id="board"></div>
+</body>
+</html>
